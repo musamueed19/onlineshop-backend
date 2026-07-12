@@ -10,10 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
-from dotenv import load_dotenv
-load_dotenv()  # Load environment variables from .env file
-
+import urllib.parse
 from pathlib import Path
+
+import certifi
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,13 +26,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dkrgu-aslkk&%+mz^r9vrdw6n_$!9*6b-um995#@1ft_d#6%j-'
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-dkrgu-aslkk&%+mz^r9vrdw6n_$!9*6b-um995#@1ft_d#6%j-',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app').split(',')
+    if host.strip()
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
+]
 
 
 # Application definition
@@ -78,12 +93,25 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+if os.environ.get('DATABASE_URL'):
+    url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path.lstrip('/'),
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or 5432,
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -120,23 +148,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
-MEDIA_URLS='/media/'
-# vercel deployment static files
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-import os
-import certifi
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # macOS/Python often lacks CA certs; point SSL at certifi's bundle
-os.environ.setdefault("SSL_CERT_FILE", certifi.where())
+os.environ.setdefault('SSL_CERT_FILE', certifi.where())
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = not os.getenv('EMAIL_USE_SSL', False).lower() in ['true', '1', 't']
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', False).lower() in ['true', '1', 't']
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() in ('true', '1', 't')
+EMAIL_USE_TLS = not EMAIL_USE_SSL
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
