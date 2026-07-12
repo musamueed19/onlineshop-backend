@@ -17,7 +17,14 @@ class ProductSerializer(serializers.ModelSerializer):
         depth = 2
 
 class OrderSerializer(serializers.ModelSerializer):
+    # depth makes FK fields read-only; keep nested product on read, accept ID on write
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(),
+        source="product",
+        write_only=True,
+    )
+
     class Meta:
         model = Order
-        fields = '__all__' # All fields of the Order model
-        depth = 2
+        fields = "__all__"

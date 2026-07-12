@@ -9,6 +9,9 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+import os
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
 
 from pathlib import Path
 
@@ -24,8 +27,9 @@ SECRET_KEY = 'django-insecure-dkrgu-aslkk&%+mz^r9vrdw6n_$!9*6b-um995#@1ft_d#6%j-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost','127.0.0.0']
 
 
 # Application definition
@@ -117,3 +121,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+import os
+import certifi
+
+# macOS/Python often lacks CA certs; point SSL at certifi's bundle
+os.environ.setdefault("SSL_CERT_FILE", certifi.where())
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = not os.getenv('EMAIL_USE_SSL', False).lower() in ['true', '1', 't']
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', False).lower() in ['true', '1', 't']
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
