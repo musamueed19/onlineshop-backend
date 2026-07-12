@@ -3,12 +3,12 @@ from .models import Category, Product, Order
 from .serializers import CategorySerializer, ProductSerializer, OrderSerializer
 
 # --- PRODUCT VIEWS ---
-# 1. Saare products dekhne aur naya product add karne ke liye
+# 1. To Create and List Products only, Just do, ListCreateAPIView
 class ProductListCreateView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
-# 2. Kisi ek product ko dekhne, update karne ya delete karne ke liye
+# 2. To do ALL CRUD, List - do RetrieveUpdateDestroyAPIView
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer

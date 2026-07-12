@@ -4,17 +4,20 @@ from .models import Category, Product, Order
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'category_name', 'description']
+        fields = '__all__' # All fields of the Category model
+        # depth = 1
 
 class ProductSerializer(serializers.ModelSerializer):
-    # Category ki poori detail dekhne ke liye (Optional)
-    category_detail = CategorySerializer(source='category', read_only=True)
+    # To get complete detail of category, based on a reference_key category in product record
+    # category_detail = CategorySerializer(source='category', read_only=True)
 
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'description', 'price', 'category', 'category_detail']
+        fields = '__all__' # All fields of the Product model
+        depth = 2
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['id', 'customer_name', 'customer_email', 'quantity', 'product', 'created_at']
+        fields = '__all__' # All fields of the Order model
+        depth = 2
