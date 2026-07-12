@@ -37,4 +37,4 @@ class OrderAdmin(admin.ModelAdmin):
     # provide search filters
     search_fields = ('customer_name', 'customer_email', 'product__product_name')
     # provide filter options
-    list_filter = ('product__product_name','customer_email','created_at', 'updated_at', 'deleted_at')
+    list_filter = ('product__category__category_name','product__product_name','customer_email','created_at', 'updated_at', 'deleted_at')
