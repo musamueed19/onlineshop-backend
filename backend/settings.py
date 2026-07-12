@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-dkrgu-aslkk&%+mz^r9vrdw6n_$!9*6b-um995#@1ft_d#6%j-
 DEBUG = True
 # DEBUG = False
 
-ALLOWED_HOSTS = ['localhost','127.0.0.0']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 
 # Application definition
@@ -78,12 +78,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -121,6 +121,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URLS='/media/'
+# vercel deployment static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 import os
 import certifi
@@ -135,3 +139,4 @@ EMAIL_USE_TLS = not os.getenv('EMAIL_USE_SSL', False).lower() in ['true', '1', '
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', False).lower() in ['true', '1', 't']
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
